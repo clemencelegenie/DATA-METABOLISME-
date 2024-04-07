@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculateur de Santé Complet</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<h2>Calculateur de Santé Complet</h2>
+<form id="calculatorForm">
+    <label for="age">Âge:</label>
+    <input type="number" id="age" required><br><br>
+    
+    <label for="sex">Sexe:</label>
+    <select id="sex" required>
+        <option value="">Sélectionnez...</option>
+        <option value="male">Homme</option>
+        <option value="female">Femme</option>
+    </select><br><br>
+    
+    <label for="height">Taille (cm):</label>
+    <input type="number" id="height" required><br><br>
+    
+    <label for="weight">Poids (kg):</label>
+    <input type="number" id="weight" required><br><br>
+    
+    <label for="waist">Tour de taille (cm):</label>
+    <input type="number" id="waist" required><br><br>
+    
+    <label for="hip">Tour de hanche (cm):</label>
+    <input type="number" id="hip" required><br><br>
+    
+    <label for="activityLevel">Niveau d'activité:</label>
+    <select id="activityLevel" required>
+        <option value="sedentary">Sédentaire</option>
+        <option value="light">Peu actif</option>
+        <option value="moderate">Modérément actif</option>
+        <option value="active">Actif</option>
+        <option value="veryActive">Très actif</option>
+    </select><br><br>
+    
+    <label for="weightLossGoal">Objectif de perte de poids par mois (en kilos):</label>
+    <input type="number" id="weightLossGoal" required><br><br>
+    
+    <button type="button" onclick="calculateResults()">Calculer</button>
+</form>
+
+<div id="results" class="results"></div>
+
+<script>
+    function calculateResults() {
+        const age = parseInt(document.getElementById('age').value);
+        const sex = document.getElementById('sex').value;
+        const height = parseInt(document.getElementById('height').value);
+        const weight = parseInt(document.getElementById('weight').value);
+        const waist = parseInt(document.getElementById('waist').value);
+        const hip = parseInt(document.getElementById('hip').value);
+        const activityLevel = document.getElementById('activityLevel').value;
+        const weightLossGoal = parseInt(document.getElementById('weightLossGoal').value);
+        const sexFactor = sex === 'male' ? 1 : 0;
+
+        // Métabolisme de base (BMR) avec la formule de Mifflin-St Jeor
+        let bmr = sex === 'male' 
+                  ? (10 * weight) + (6.25 * height) - (5 * age) + 5 
+                  : (10 * weight) + (6.25 * height) - (5 * age) - 161;
+        
+        // Facteur de dépense énergétique selon le niveau d'activité
+        const activityFactors = {
+            sedentary: 1.2,
+            light: 1.375,
+            moderate: 1.55,
+            active: 1.725,
+            veryActive: 1.9
+        };
+        const caloriesNeeded = bmr * activityFactors[activityLevel];
+
+        // Calcul de l'IMC
+        const imc = weight / ((height / 100) ** 2);
+
+        // Poids idéal selon la formule de Lorentz (exemple simplifié)
+        const poidsIdeal = sex === 'male' 
+                           ? height - 100 - ((height - 150) / 4) 
+                           : height - 100 - ((height - 150) / 2.5);
+
+        // Besoin en protéines (1.5g par kg de poids idéal)
+        const besoinProteines = poidsIdeal * 1.5;
+
+        // Calcul de l'IMG
+        const img = (1.20 * imc) + (0.23 * age) - (10.8 * sexFactor) - 5.4;
+
+        // Déficit calorique pour objectif de perte de poids
+        const dailyDeficit = weightLossGoal * 250; // Déficit quotidien ajusté selon l'objectif
+        const weeklyDeficit = dailyDeficit * 7;
+        const monthlyDeficit = dailyDeficit * 30;
+
+        document.getElementById('results').innerHTML = `
+            <p>Métabolisme de base (BMR): ${bmr.toFixed(2)} kcal/jour</p>
+            <p>Calories nécessaires par jour: ${caloriesNeeded.toFixed(2)} kcal</p>
+            <p>IMC: ${imc.toFixed(2)}</p>
+            <p>Poids Idéal (Lorentz): ${poidsIdeal.toFixed(2)} kg</p>
+            <p>Besoin en protéines: ${besoinProteines.toFixed(2)} g/jour</p>
+            <p>Indice de Masse Grasse (IMG): ${img.toFixed(2)}%</p>
+            <p>Déficit calorique quotidien pour objectif de perte de poids: ${dailyDeficit.toFixed(2)} kcal</p>
+            <p>Déficit calorique hebdomadaire: ${weeklyDeficit.toFixed(2)} kcal</p>
+            <p>Déficit calorique mensuel: ${monthlyDeficit.toFixed(2)} kcal</p>
+        `;
+    }
+</script>
+
+</body>
+</html>
